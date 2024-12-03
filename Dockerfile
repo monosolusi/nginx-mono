@@ -1,5 +1,7 @@
 FROM nginx:latest
 
+RUN apt-get update && apt-get install -y cron
+
 RUN curl https://get.acme.sh | sh -s email=frans@monosolusi.com
 
 COPY entrypoint.sh /entrypoint.sh
