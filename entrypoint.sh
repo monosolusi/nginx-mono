@@ -1,21 +1,15 @@
 #!/bin/bash
 
-# Domains to secure
-domains=(
-  "sancaka-api.monosolusi.com"
-)
+# Obtain certificates (nginx needs to be running)
+certbot certonly --standalone \
+  -d sancaka-api.monosolusi.com  \
+  --non-interactive \
+  --agree-tos \
+  --email frans@monosolusi.com
 
-# Join domains into a comma-separated string
-domain_list=$(IFS=,; echo "${domains[*]}")
-
-# Issue the certificate (replace with your preferred method)
-acme.sh --issue -d $domain_list --standalone
-
-# Install the certificate
-acme.sh --install-cert -d $domain_list \
-    --fullchain-file /etc/ssl/certs/fullchain.pem \
-    --key-file /etc/ssl/private/key.pem \
-    --reloadcmd "nginx -s reload"
+# Configure nginx to use the certificates
+sed -i "s/ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;/ssl_certificate     /etc/letsencrypt/live/sancaka-api.monosolusi.com/fullchain.pem;/" /etc/nginx/conf.d/reverse-proxy.conf
+sed -i "s/ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;/ssl_certificate_key /etc/letsencrypt/live/sancaka-api.monosolusi.com/privkey.pem;/" /etc/nginx/conf.d/reverse-proxy.conf
 
 # Start nginx
 nginx -g 'daemon off;'
