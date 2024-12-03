@@ -45,4 +45,5 @@ jobs:
               -p 80:80 \
               -p 443:443 \
               --name nginx-mono \
+              --network payoo \
               ${{ vars.DOCKERHUB_USERNAME }}/nginx-mono:${{ steps.random-tag.outputs.random-tag  }}
