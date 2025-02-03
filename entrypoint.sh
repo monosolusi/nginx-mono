@@ -11,7 +11,7 @@ check_and_generate_cert() {
         echo "Certificate for $domain already exists, skipping Certbot request."
     else
         echo "Requesting certificate for $domain..."
-        certbot certonly --standalone \
+        certbot certonly --standalone --dry-run \
           -d "$domain" \
           --non-interactive \
           --agree-tos \
