@@ -46,4 +46,6 @@ jobs:
               -p 443:443 \
               --name nginx-mono \
               --network sancaka \
+              --network tokosumatra \
+              --restart unless-stopped \
               ${{ vars.DOCKERHUB_USERNAME }}/nginx-mono:${{ steps.random-tag.outputs.random-tag  }}
