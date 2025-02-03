@@ -3,7 +3,7 @@
 set -e
 
 # Obtain certificates (nginx needs to be running)
-certbot certonly --standalone \
+certbot certonly --standalone -v \
   -d sancaka-api.monosolusi.com  \
   --non-interactive \
   --agree-tos \
@@ -13,7 +13,7 @@ certbot certonly --standalone \
 sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     /etc/letsencrypt/live/sancaka-api.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key /etc/letsencrypt/live/sancaka-api.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
-certbot certonly --standalone \
+certbot certonly --standalone -v \
   -d grafana.tokosumatra.monosolusi.com \
   --non-interactive \
   --agree-tos \
@@ -22,7 +22,7 @@ certbot certonly --standalone \
 sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     /etc/letsencrypt/live/grafana.tokosumatra.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key /etc/letsencrypt/live/grafana.tokosumatra.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
-certbot certonly --standalone \
+certbot certonly --standalone -v \
   -d loki.tokosumatra.monosolusi.com \
   --non-interactive \
   --agree-tos \
