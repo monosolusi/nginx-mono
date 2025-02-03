@@ -3,6 +3,7 @@
 # Obtain certificates (nginx needs to be running)
 certbot certonly --standalone \
   -d sancaka-api.monosolusi.com  \
+  -d tokosumatra.monosolusi.com \
   --non-interactive \
   --agree-tos \
   --email frans@monosolusi.com
