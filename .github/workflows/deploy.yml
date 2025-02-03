@@ -45,7 +45,7 @@ jobs:
               -p 80:80 \
               -p 443:443 \
               -v ./nginx-mono/logs:/var/log \
-              -v ./nginx-mono/certs:/etc/letsencrypt/live \
+              -v ./nginx-mono/certs:/etc/letsencrypt:rw \
               --name nginx-mono \
               --network sancaka \
               --network tokosumatra \
