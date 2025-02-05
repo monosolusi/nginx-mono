@@ -27,6 +27,7 @@ check_and_generate_cert "grafana.tokosumatra.monosolusi.com"
 check_and_generate_cert "loki.tokosumatra.monosolusi.com"
 check_and_generate_cert "prometheus.tokosumatra.monosolusi.com"
 check_and_generate_cert "api.sancaka.monosolusi.com"
+check_and_generate_cert "api.tokosumatra.monosolusi.com"
 
 
 # Update Nginx configuration with existing certificates
@@ -39,6 +40,9 @@ sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certif
 sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/prometheus.tokosumatra.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/prometheus.tokosumatra.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
+sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.tokosumatra.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
+sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.tokosumatra.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
+
 sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.sancaka.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.sancaka.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
@@ -46,6 +50,7 @@ sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certif
 if [ ! -f "$CERT_DIR/grafana.tokosumatra.monosolusi.com/fullchain.pem" ] || \
    [ ! -f "$CERT_DIR/loki.tokosumatra.monosolusi.com/fullchain.pem" ] || \
    [ ! -f "$CERT_DIR/prometheus.tokosumatra.monosolusi.com/fullchain.pem" ] || \
+   [ ! -f "$CERT_DIR/api.tokosumatra.monosolusi.com/fullchain.pem" ] || \
    [ ! -f "$CERT_DIR/api.sancaka.monosolusi.com/fullchain.pem" ]; then
     echo "ERROR: One or more SSL certificates not generated!"
     exit 1
