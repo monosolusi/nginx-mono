@@ -23,20 +23,20 @@ check_and_generate_cert() {
 }
 
 # Request certificates only if necessary
-check_and_generate_cert "api.sancaka.monosolusi.com"
 check_and_generate_cert "loonas.id"
+check_and_generate_cert "api.loonas.id"
 
 
 # Update Nginx configuration with existing certificates
 sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.sancaka.monosolusi.com/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.sancaka.monosolusi.com/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
+sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
+sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
 
 # Ensure all certificates exist before proceeding
 if [ ! -f "$CERT_DIR/loonas.id/fullchain.pem" ] || \
-   [ ! -f "$CERT_DIR/api.sancaka.monosolusi.com/fullchain.pem" ]; then
+   [ ! -f "$CERT_DIR/api.loonas.id/fullchain.pem" ]; then
     echo "ERROR: One or more SSL certificates not generated!"
     exit 1
 fi
