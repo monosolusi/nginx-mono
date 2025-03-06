@@ -48,5 +48,4 @@ jobs:
               -v ./nginx-mono/certs:/etc/letsencrypt:rw \
               --name nginx-mono \
               --network sancaka \
-              --network tokosumatra \
               ${{ vars.DOCKERHUB_USERNAME }}/nginx-mono:${{ steps.random-tag.outputs.random-tag  }}
