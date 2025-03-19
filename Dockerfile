@@ -8,8 +8,14 @@ RUN apt-get update && \
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+COPY renew_certs.sh /renew_certs.sh
+RUN chmod +x /renew_certs.sh
+
+RUN echo "0 18 * * * root /renew_certs.sh" >> /etc/crontab
+RUN crontab /etc/crontab
+
 COPY reverse-proxy.conf /etc/nginx/conf.d/
 
 EXPOSE 80 443
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD service cron start && /entrypoint.sh
