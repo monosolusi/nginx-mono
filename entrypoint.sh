@@ -2,58 +2,50 @@
 set -e  # Exit immediately on error
 
 CERT_DIR="/etc/letsencrypt/live"
+WEBROOT="/var/www/certbot"
+EMAIL="frans@monosolusi.com"
+DOMAINS=(
+  "loonas.id"
+  "api.loonas.id"
+  "app.loonas.id"
+  "api.ninjas.loonas.id"
+  "ninjas.loonas.id"
+)
 
+# Ensure webroot directory exists
+mkdir -p $WEBROOT
+
+# Function to check and request certificate via webroot
 check_and_generate_cert() {
     local domain=$1
 
-    # Check if the certificate already exists and is valid
     if [ -f "$CERT_DIR/$domain/fullchain.pem" ]; then
-        echo "Certificate for $domain already exists, skipping Certbot request."
+        echo "Certificate for $domain already exists, skipping request."
     else
         echo "Requesting certificate for $domain..."
-        certbot certonly --standalone \
-          -d "$domain" \
-          --non-interactive \
-          --agree-tos \
-          --email frans@monosolusi.com || {
-            echo "ERROR: Certbot failed for $domain. Check logs and Let's Encrypt rate limits."
-            exit 1
-          }
+        certbot certonly --webroot -w $WEBROOT \
+            -d "$domain" \
+            --non-interactive \
+            --agree-tos \
+            --email "$EMAIL" || {
+                echo "ERROR: Certbot failed for $domain"
+                exit 1
+            }
     fi
 }
 
-# Request certificates only if necessary
-check_and_generate_cert "loonas.id"
-check_and_generate_cert "api.loonas.id"
-check_and_generate_cert "app.loonas.id"
-check_and_generate_cert "api.ninjas.loonas.id"
-check_and_generate_cert "ninjas.loonas.id"
+# Loop over each domain and ensure cert exists
+for domain in "${DOMAINS[@]}"; do
+    check_and_generate_cert "$domain"
+done
 
-# Update Nginx configuration with existing certificates
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
+for domain in "${DOMAINS[@]}"; do
+    if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ]; then
+        echo "ERROR: Missing certificate for $domain"
+        exit 1
+    fi
+done
 
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/app.loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/app.loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/api.ninjas.loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/api.ninjas.loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-
-sed -i "s|ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;|ssl_certificate     $CERT_DIR/ninjas.loonas.id/fullchain.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-sed -i "s|ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;|ssl_certificate_key $CERT_DIR/ninjas.loonas.id/privkey.pem;|" /etc/nginx/conf.d/reverse-proxy.conf
-
-# Ensure all certificates exist before proceeding
-if [ ! -f "$CERT_DIR/loonas.id/fullchain.pem" ] || \
-   [ ! -f "$CERT_DIR/app.loonas.id/fullchain.pem" ] || \
-   [ ! -f "$CERT_DIR/api.ninjas.loonas.id/fullchain.pem" ] || \
-   [ ! -f "$CERT_DIR/ninjas.loonas.id/fullchain.pem" ] || \
-   [ ! -f "$CERT_DIR/api.loonas.id/fullchain.pem" ]; then
-    echo "ERROR: One or more SSL certificates not generated!"
-    exit 1
-fi
-
-# Start nginx
+# Start Nginx in foreground
+echo "All certificates present. Starting Nginx..."
 nginx -g 'daemon off;'
