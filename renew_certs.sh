@@ -9,8 +9,7 @@ echo "🔁 Renewing certificates using webroot..."
 # Renew using webroot (no port 80 conflict)
 certbot renew \
   --webroot --webroot-path "$WEBROOT" \
-  --non-interactive \
-  --quiet
+  --non-interactive 
 
 # Reload Nginx if any certs are updated
 if find "$CERT_DIR" -type f -newerct "1 day ago" -name "fullchain.pem" -print -quit 2>/dev/null; then
