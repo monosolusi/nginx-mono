@@ -2,18 +2,20 @@
 set -e
 
 CERT_DIR="/etc/letsencrypt/live"
-NGINX_CONFIG="/etc/nginx/conf.d/reverse-proxy.conf"
+WEBROOT="/var/www/certbot"
 
-# Attempt to renew certificates
-certbot renew --non-interactive --agree-tos --email frans@monosolusi.com || {
-    echo "ERROR: Certbot renewal failed. Check logs and Let's Encrypt rate limits."
-    exit 1
-}
+echo "🔁 Renewing certificates using webroot..."
 
-# Check if any certificates were renewed (Certbot returns 0 even if no renewal happened)
+# Renew using webroot (no port 80 conflict)
+certbot renew \
+  --webroot --webroot-path "$WEBROOT" \
+  --non-interactive \
+  --quiet
+
+# Reload Nginx if any certs are updated
 if find "$CERT_DIR" -type f -newerct "1 day ago" -name "fullchain.pem" -print -quit 2>/dev/null; then
-    echo "Certificates renewed. Reloading Nginx..."
+    echo "✅ Certificates renewed. Reloading Nginx..."
     nginx -s reload
 else
-    echo "No certificates needed renewal."
+    echo "ℹ️ No certificates needed renewal."
 fi
