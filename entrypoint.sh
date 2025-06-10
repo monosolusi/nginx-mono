@@ -16,6 +16,12 @@ DOMAINS=(
 # Ensure webroot directory exists
 mkdir -p $WEBROOT
 
+# Start Nginx in background
+nginx
+
+# Wait for Nginx to be ready
+sleep 5
+
 # Function to check and request certificate via webroot
 check_and_generate_cert() {
     local domain=$1
@@ -47,6 +53,8 @@ for domain in "${DOMAINS[@]}"; do
     fi
 done
 
-# Start Nginx in foreground
-echo "All certificates present. Starting Nginx..."
-nginx -g 'daemon off;'
+# Reload nginx to pick up certs
+nginx -s reload
+
+# Keep container alive
+tail -f /dev/null
