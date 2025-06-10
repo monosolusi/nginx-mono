@@ -40,15 +40,17 @@ sleep 5
 for domain in "${DOMAINS[@]}"; do
   if [ -f "$CERT_DIR/$domain/DUMMY" ]; then
     echo "Requesting real certificate for $domain..."
-    
-    # Hapus dummy cert agar certbot bisa buat ulang
+
+    # Hapus dummy + metadata renewal agar tidak create -0001
     rm -rf "$CERT_DIR/$domain"
+    rm -rf "/etc/letsencrypt/archive/$domain"
+    rm -f "/etc/letsencrypt/renewal/$domain.conf"
 
     certbot certonly --webroot -w $WEBROOT \
-      -d "$domain" \
-      --non-interactive \
-      --agree-tos \
-      --email "$EMAIL" && echo "✅ Certificate issued for $domain"
+        -d "$domain" \
+        --non-interactive \
+        --agree-tos \
+        --email "$EMAIL" && echo "✅ Certificate issued for $domain"
   else
     echo "Certificate for $domain already valid, skipping."
   fi
