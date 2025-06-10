@@ -15,7 +15,7 @@ DOMAINS=(
 
 mkdir -p $WEBROOT
 
-# 🔧 1. Generate dummy cert jika belum ada (agar nginx bisa start)
+# 🔧 1. Generate dummy cert jika belum ada
 for domain in "${DOMAINS[@]}"; do
   if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ]; then
     echo "Generating dummy certificate for $domain..."
@@ -24,35 +24,33 @@ for domain in "${DOMAINS[@]}"; do
       -keyout $CERT_DIR/$domain/privkey.pem \
       -out $CERT_DIR/$domain/fullchain.pem \
       -days 1 \
-      -subj "/CN=localhost"
+      -subj "/CN=dummy-cert"
+    touch "$CERT_DIR/$domain/DUMMY"
   fi
 done
 
-# 🔃 2. Start nginx agar certbot bisa jalan
+# 🔃 2. Start nginx dengan dummy certs
 echo "Starting Nginx with dummy certs..."
 nginx
 
 # ⏳ 3. Tunggu nginx siap
 sleep 5
 
-# 🔐 4. Ganti dummy cert dengan certbot yang valid
+# 🔐 4. Jalankan certbot jika cert masih dummy
 for domain in "${DOMAINS[@]}"; do
-  if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ] || openssl x509 -in "$CERT_DIR/$domain/fullchain.pem" -noout -text | grep -q "CN=localhost"; then
+  if [ -f "$CERT_DIR/$domain/DUMMY" ]; then
     echo "Requesting real certificate for $domain..."
     certbot certonly --webroot -w $WEBROOT \
       -d "$domain" \
       --non-interactive \
       --agree-tos \
-      --email "$EMAIL" || {
-        echo "❌ ERROR: Certbot failed for $domain"
-        exit 1
-      }
+      --email "$EMAIL" && rm -f "$CERT_DIR/$domain/DUMMY"
   else
-    echo "Certificate for $domain already exists and valid, skipping."
+    echo "Certificate for $domain already valid, skipping."
   fi
 done
 
-# 🔁 5. Reload nginx agar pakai cert yang baru
+# 🔁 5. Reload nginx untuk gunakan cert baru
 echo "Reloading Nginx with real certificates..."
 nginx -s reload
 
