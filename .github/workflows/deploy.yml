@@ -44,9 +44,9 @@ jobs:
             docker run -d \
               -p 80:80 \
               -p 443:443 \
-              -v ./nginx-mono/logs:/var/log \
-              -v ./nginx-mono/certs:/etc/letsencrypt:rw \
-              -v ./nginx-mono/webroot:/var/www/certbot \
+              -v /home/ubuntu/nginx-mono/logs:/var/log \
+              -v /home/ubuntu/nginx-mono/certs:/etc/letsencrypt:rw \
+              -v /home/ubuntu/nginx-mono/webroot:/var/www/certbot \
               --name nginx-mono \
               --network sancaka \
               ${{ vars.DOCKERHUB_USERNAME }}/nginx-mono:${{ steps.random-tag.outputs.random-tag  }}
