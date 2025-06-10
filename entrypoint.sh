@@ -40,15 +40,20 @@ sleep 5
 for domain in "${DOMAINS[@]}"; do
   if [ -f "$CERT_DIR/$domain/DUMMY" ]; then
     echo "Requesting real certificate for $domain..."
+    
+    # Hapus dummy cert agar certbot bisa buat ulang
+    rm -rf "$CERT_DIR/$domain"
+
     certbot certonly --webroot -w $WEBROOT \
       -d "$domain" \
       --non-interactive \
       --agree-tos \
-      --email "$EMAIL" && rm -f "$CERT_DIR/$domain/DUMMY"
+      --email "$EMAIL" && echo "✅ Certificate issued for $domain"
   else
     echo "Certificate for $domain already valid, skipping."
   fi
 done
+
 
 # 🔁 5. Reload nginx untuk gunakan cert baru
 echo "Reloading Nginx with real certificates..."
