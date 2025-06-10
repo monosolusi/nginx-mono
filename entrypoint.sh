@@ -10,6 +10,7 @@ DOMAINS=(
   "app.loonas.id"
   "api.ninjas.loonas.id"
   "ninjas.loonas.id"
+  "kibana.loonas.id"
 )
 
 # Ensure webroot directory exists
