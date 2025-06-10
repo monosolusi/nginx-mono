@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit immediately on error
+set -e
 
 CERT_DIR="/etc/letsencrypt/live"
 WEBROOT="/var/www/certbot"
@@ -13,48 +13,48 @@ DOMAINS=(
   "kibana.loonas.id"
 )
 
-# Ensure webroot directory exists
 mkdir -p $WEBROOT
 
-# Start Nginx in background
+# 🔧 1. Generate dummy cert jika belum ada (agar nginx bisa start)
+for domain in "${DOMAINS[@]}"; do
+  if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ]; then
+    echo "Generating dummy certificate for $domain..."
+    mkdir -p $CERT_DIR/$domain
+    openssl req -x509 -nodes -newkey rsa:2048 \
+      -keyout $CERT_DIR/$domain/privkey.pem \
+      -out $CERT_DIR/$domain/fullchain.pem \
+      -days 1 \
+      -subj "/CN=localhost"
+  fi
+done
+
+# 🔃 2. Start nginx agar certbot bisa jalan
+echo "Starting Nginx with dummy certs..."
 nginx
 
-# Wait for Nginx to be ready
+# ⏳ 3. Tunggu nginx siap
 sleep 5
 
-# Function to check and request certificate via webroot
-check_and_generate_cert() {
-    local domain=$1
-
-    if [ -f "$CERT_DIR/$domain/fullchain.pem" ]; then
-        echo "Certificate for $domain already exists, skipping request."
-    else
-        echo "Requesting certificate for $domain..."
-        certbot certonly --webroot -w $WEBROOT \
-            -d "$domain" \
-            --non-interactive \
-            --agree-tos \
-            --email "$EMAIL" || {
-                echo "ERROR: Certbot failed for $domain"
-                exit 1
-            }
-    fi
-}
-
-# Loop over each domain and ensure cert exists
+# 🔐 4. Ganti dummy cert dengan certbot yang valid
 for domain in "${DOMAINS[@]}"; do
-    check_and_generate_cert "$domain"
-done
-
-for domain in "${DOMAINS[@]}"; do
-    if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ]; then
-        echo "ERROR: Missing certificate for $domain"
+  if [ ! -f "$CERT_DIR/$domain/fullchain.pem" ] || openssl x509 -in "$CERT_DIR/$domain/fullchain.pem" -noout -text | grep -q "CN=localhost"; then
+    echo "Requesting real certificate for $domain..."
+    certbot certonly --webroot -w $WEBROOT \
+      -d "$domain" \
+      --non-interactive \
+      --agree-tos \
+      --email "$EMAIL" || {
+        echo "❌ ERROR: Certbot failed for $domain"
         exit 1
-    fi
+      }
+  else
+    echo "Certificate for $domain already exists and valid, skipping."
+  fi
 done
 
-# Reload nginx to pick up certs
+# 🔁 5. Reload nginx agar pakai cert yang baru
+echo "Reloading Nginx with real certificates..."
 nginx -s reload
 
-# Keep container alive
+# 🌀 6. Keep container alive
 tail -f /dev/null
