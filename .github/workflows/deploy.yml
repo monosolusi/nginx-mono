@@ -46,7 +46,7 @@ jobs:
               -p 443:443 \
               -v ./nginx-mono/logs:/var/log \
               -v ./nginx-mono/certs:/etc/letsencrypt:rw \
-              -v ./nginx-mono/webroot:/var/www/certbox \
+              -v ./nginx-mono/webroot:/var/www/certbot \
               --name nginx-mono \
               --network sancaka \
               ${{ vars.DOCKERHUB_USERNAME }}/nginx-mono:${{ steps.random-tag.outputs.random-tag  }}
