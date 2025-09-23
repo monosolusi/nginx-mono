@@ -16,6 +16,7 @@ DOMAINS=(
   "uat-ninjas.loonas.id"
   "uat-api.loonas.id"
   "uat-app.loonas.id"
+  "uat.loonas.id"
 )
 
 mkdir -p $WEBROOT
