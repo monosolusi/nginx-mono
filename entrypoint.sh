@@ -8,8 +8,6 @@ DOMAINS=(
   "loonas.id"
   "api.loonas.id"
   "app.loonas.id"
-  "api.ninjas.loonas.id"
-  "ninjas.loonas.id"
   "kibana.loonas.id"
   "ingest-2anwz.loonas.id"
   "uat-api.loonas.id"
