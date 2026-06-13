@@ -6,6 +6,7 @@ WEBROOT="/var/www/certbot"
 EMAIL="frans@monosolusi.com"
 DOMAINS=(
   "loonas.id"
+  "dev.loonas.id"
   "api.loonas.id"
   "app.loonas.id"
   "kibana.loonas.id"
