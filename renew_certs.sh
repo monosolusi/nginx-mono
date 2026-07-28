@@ -1,17 +1,14 @@
 #!/bin/bash
 set -e
-
 CERT_DIR="/etc/letsencrypt/live"
 WEBROOT="/var/www/certbot"
-
 echo "🔁 Renewing certificates using webroot..."
 
-# Renew using webroot (no port 80 conflict)
+# Allow certbot to fail (some domains) without exiting the whole script
 certbot renew \
   --webroot --webroot-path "$WEBROOT" \
-  --non-interactive 
+  --non-interactive || echo "⚠️ Some certs failed to renew, continuing to check for reload..."
 
-# Reload Nginx if any certs are updated
 if find "$CERT_DIR" -type f -newerct "1 day ago" -name "fullchain.pem" -print -quit 2>/dev/null; then
     echo "✅ Certificates renewed. Reloading Nginx..."
     nginx -s reload
