@@ -17,6 +17,7 @@ DOMAINS=(
   "dev-api.loonas.id"
   "dev-app.loonas.id"
   "dev-metabase.loonas.id"
+  "dev.monosolusi.com"
 )
 
 mkdir -p $WEBROOT
