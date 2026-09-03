@@ -20,6 +20,8 @@ DOMAINS=(
   "dev.monosolusi.com"
   "monosolusi.com"
   "registry.monosolusi.com"
+  "activate.monosolusi.com"
+  "licensing.internal.monosolusi.com"
 )
 
 mkdir -p $WEBROOT
