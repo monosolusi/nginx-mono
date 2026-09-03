@@ -44,6 +44,7 @@ jobs:
             docker run -d \
               -p 80:80 \
               -p 443:443 \
+              -e DO_API_TOKEN=${{ secrets.DO_DNS_TOKEN }} \
               -v /home/ubuntu/nginx-mono/logs:/var/log \
               -v /home/ubuntu/nginx-mono/certs:/etc/letsencrypt:rw \
               -v /home/ubuntu/nginx-mono/webroot:/var/www/certbot \
